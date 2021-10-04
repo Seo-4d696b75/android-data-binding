@@ -3,11 +3,17 @@ package jp.co.yumemi.senda.bindingexample.ui.test
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 
 class TestViewModel : ViewModel() {
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is dashboard Fragment"
+    private val cnt = MutableLiveData<Int>(0)
+
+    fun increment() {
+        cnt.value?.let {
+            cnt.value = it + 1
+        }
     }
-    val text: LiveData<String> = _text
+
+    val text: LiveData<String> = cnt.map { "This is TestFragment $it" }
 }
