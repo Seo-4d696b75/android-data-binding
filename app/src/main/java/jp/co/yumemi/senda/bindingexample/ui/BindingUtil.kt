@@ -24,7 +24,7 @@ class BindingHolder<T : ViewDataBinding>(
         fragment.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
                 binding = null
-                Log.d("BindingHolder", "binding released")
+                Log.d("solution2", "binding released")
             }
         })
     }
@@ -36,19 +36,25 @@ class BindingHolder<T : ViewDataBinding>(
             val value = requireNotNull(DataBindingUtil.bind<T>(view))
             value.lifecycleOwner = thisRef.viewLifecycleOwner
             binding = value
-            Log.d("BindingHolder", "binding assigned")
+            Log.d("solution2", "binding@${System.identityHashCode(value)} assigned")
             value
         }
 
     }
 }
 
+/**
+ * Solution 2
+ *
+ * Observerを登録して `Fragment#onDestroyView`のタイミングでBindingへの参照を切る
+ */
 fun <T : ViewDataBinding> Fragment.dataBinding() = BindingHolder<T>(this)
 
 /**
- * Binding への getter
+ * Solution 3
  *
- * アクセスの度に binding を生成して返す（もしくは既に bind されているオブジェクトを返す）
+ * 参照は保持セスアクセスの度に bind して返す
+ * `DataBindingUtil#bind` 内部でbindingがキャッシュされているので毎回インスタンスを生成するわけではない
  */
 fun <T : ViewDataBinding> Fragment.useDataBinding() =
     ReadOnlyProperty<Fragment, T> { thisRef, property ->
@@ -56,6 +62,6 @@ fun <T : ViewDataBinding> Fragment.useDataBinding() =
             ?: throw IllegalStateException("view not inflated yet, or already destroyed")
         val value = requireNotNull(DataBindingUtil.bind<T>(view))
         value.lifecycleOwner = thisRef.viewLifecycleOwner
-        Log.d("BindingUse", "created")
+        Log.d("solution3", "binding@${System.identityHashCode(value)} bound and returned")
         value
     }

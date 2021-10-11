@@ -25,13 +25,15 @@ class SolutionFragment : Fragment(R.layout.fragment_solution) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("TestFragment", "onViewCreated")
-        binding1 = FragmentSolutionBinding.bind(view).also {
-            // other solution: Not access to any view directly via binding, if possible
+        val binding = FragmentSolutionBinding.bind(view)
+        Log.d("solution1", "init binding@${System.identityHashCode(binding)} in onViewCreated")
+        binding1 = binding
+        binding.let {
+            // other solution: Not keep reference to binding by not accessing to any view directly via binding
             it.viewModel = testViewModel
             it.lifecycleOwner = viewLifecycleOwner
         }
-        testViewModel.text.observe(viewLifecycleOwner){
+        testViewModel.text.observe(viewLifecycleOwner) {
             binding1?.textBinding1?.text = it
             binding2.textBinding2.text = it
             binding3.textBinding3.text = it
@@ -40,7 +42,7 @@ class SolutionFragment : Fragment(R.layout.fragment_solution) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d("TestFragment", "onDestroyView")
+        Log.d("solution1", "binding reference cleared in onDestroyView")
         binding1 = null
     }
 }
