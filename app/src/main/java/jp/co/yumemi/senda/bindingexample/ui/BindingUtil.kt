@@ -14,14 +14,14 @@ import kotlin.reflect.KProperty
  *
  * Fragment#onDestroyView に合わせて binding を null クリアする
  */
-class BindingHolder<T: ViewDataBinding>(
+class BindingHolder<T : ViewDataBinding>(
     fragment: Fragment
-) : ReadOnlyProperty<Fragment, T>{
+) : ReadOnlyProperty<Fragment, T> {
 
     private var binding: T? = null
 
     init {
-        fragment.lifecycle.addObserver(object: DefaultLifecycleObserver{
+        fragment.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
                 binding = null
                 Log.d("BindingHolder", "binding released")
@@ -31,8 +31,9 @@ class BindingHolder<T: ViewDataBinding>(
 
     override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
         return binding ?: kotlin.run {
-            val view = thisRef.view ?: throw IllegalStateException("view not inflated yet")
-            val value = DataBindingUtil.bind<T>(view)!!
+            val view = thisRef.view
+                ?: throw IllegalStateException("view not inflated yet, or already destroyed")
+            val value = requireNotNull(DataBindingUtil.bind<T>(view))
             value.lifecycleOwner = thisRef.viewLifecycleOwner
             binding = value
             Log.d("BindingHolder", "binding assigned")
@@ -42,17 +43,19 @@ class BindingHolder<T: ViewDataBinding>(
     }
 }
 
-fun <T: ViewDataBinding> Fragment.viewBinding() = BindingHolder<T>(this)
+fun <T : ViewDataBinding> Fragment.dataBinding() = BindingHolder<T>(this)
 
 /**
  * Binding への getter
  *
  * アクセスの度に binding を生成して返す（もしくは既に bind されているオブジェクトを返す）
  */
-fun <T: ViewDataBinding> useViewBinding() = ReadOnlyProperty<Fragment, T> { thisRef, property ->
-    val view = thisRef.view ?: throw IllegalStateException("view not inflated yet")
-    val value = DataBindingUtil.bind<T>(view)!!
-    value.lifecycleOwner = thisRef.viewLifecycleOwner
-    Log.d("BindingUse", "created")
-    value
-}
+fun <T : ViewDataBinding> Fragment.useDataBinding() =
+    ReadOnlyProperty<Fragment, T> { thisRef, property ->
+        val view = thisRef.view
+            ?: throw IllegalStateException("view not inflated yet, or already destroyed")
+        val value = requireNotNull(DataBindingUtil.bind<T>(view))
+        value.lifecycleOwner = thisRef.viewLifecycleOwner
+        Log.d("BindingUse", "created")
+        value
+    }
