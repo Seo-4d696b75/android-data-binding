@@ -12,9 +12,16 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_test"
-        android:name="jp.co.yumemi.senda.bindingexample.ui.test.TestFragment"
-        android:label="@string/title_test"
-        tools:layout="@layout/fragment_test" />
+        android:id="@+id/navigation_problem"
+        android:name="jp.co.yumemi.senda.bindingexample.ui.test.ProblemFragment"
+        android:label="@string/title_problem"
+        tools:layout="@layout/fragment_problem" />
+
+
+    <fragment
+        android:id="@+id/navigation_solution"
+        android:name="jp.co.yumemi.senda.bindingexample.ui.test.SolutionFragment"
+        android:label="@string/title_solution"
+        tools:layout="@layout/fragment_solution" />
 
 </navigation>

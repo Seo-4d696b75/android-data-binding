@@ -15,5 +15,5 @@ class TestViewModel : ViewModel() {
         }
     }
 
-    val text: LiveData<String> = cnt.map { "This is TestFragment $it" }
+    val text: LiveData<String> = cnt.map { "Current counting is $it" }
 }
